@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
       res.send("Erro ao obter tarefas");
       console.error("ERRO NO BANCO !!!!!! \n", err.message);
     } else {
-      res.sendFile("VIEWS/home.html", { root: __dirname });
+      res.sendFile("./VIEWS/home.html", { root: __dirname });
     }
   });
 });
@@ -45,7 +45,7 @@ app.get("/insere-poucos", (req, res) => {
       res.send("Erro ao inserir dados");
     } else {
       res.send(
-        "<h1>Populado com sucesso!</h1><p>Vá para a rota principal para ver os dados</p>",
+        '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Preencher</title><style>*{margin:0;padding:0;box-sizing:border-box;font-family:Verdana,Geneva,Tahoma,sans-serif;}body{background-color:#535353;color:#000;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:30px;}div{padding:20px;background-color:rgb(235, 236, 154);border-radius:8px;border:1px solid #ccc;color:#111;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:700px;width:100%;}h1{font-size:2.2rem;margin-bottom:20px;color:#000;}a{display:inline-block;background:#1a1a1a;color:rgb(235, 236, 154);padding:10px 16px;text-decoration:none;border-radius:4px;transition:background-color 0.3s;}a:hover{background:#444;}</style></head><body><div><h1>Populado com sucesso!!</h1><a href="/">Voltar</a></div></body></html>',
       );
     }
   });
@@ -107,5 +107,23 @@ app.get("/insere-muitos", (req, res) => {
     connection.run(query, [nomeFinal, statusAleatorio]);
   }
 
-  res.send("<h1>100 tarefas criadas com sucesso chefe!</h1>");
+  res.send(
+    '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Preencher</title><style>*{margin:0;padding:0;box-sizing:border-box;font-family:Verdana,Geneva,Tahoma,sans-serif;}body{background-color:#535353;color:#000;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:30px;}div{padding:20px;background-color:rgb(235, 236, 154);border-radius:8px;border:1px solid #ccc;color:#111;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:700px;width:100%;}h1{font-size:2.2rem;margin-bottom:20px;color:#000;}a{display:inline-block;background:#1a1a1a;color:rgb(235, 236, 154);padding:10px 16px;text-decoration:none;border-radius:4px;transition:background-color 0.3s;}a:hover{background:#444;}</style></head><body><div><h1>100 tarefas criadas com sucesso chefe!</h1><a href="/">Voltar</a></div></body></html>',
+  );
+});
+
+app.get("/tarefas", (req, res) => {
+  connection.all("SELECT * FROM tasks", (err, rows) => {
+    if (err) {
+      res.send("Erro ao buscar tarefas");
+    } else {
+      let texto = "";
+
+      rows.forEach((linha) => {
+        texto += `<p>${linha.id} -> ${linha.task} / ${linha.status}</p>`;
+      });
+
+      res.send(texto);
+    }
+  });
 });
