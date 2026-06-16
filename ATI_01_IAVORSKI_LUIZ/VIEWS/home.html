@@ -11,72 +11,68 @@
         padding: 0;
         box-sizing: border-box;
       }
-
       body {
-        background-color: #535353;
-        text-align: center;
+        background: #eaf5fb; /* paleta fria */
+        color: #223238;
         font-family: Verdana, Geneva, Tahoma, sans-serif;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         min-height: 100vh;
-      }
-
-      .div {
-        width: 100%;
-        max-width: 700px;
-        margin: 0 auto;
         padding: 20px;
       }
-
+      .div {
+        width: 100%;
+        max-width: 900px;
+        margin: auto;
+        padding: 26px;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #ffffff, #f6fbfc);
+        box-shadow: 0 8px 24px rgba(34, 50, 60, 0.08);
+      }
       h1 {
         margin-bottom: 16px;
-        color: rgb(0, 0, 0);
-      }
-
+        color: #6b4b3a;
+      } /* marrom de destaque */
       p {
         margin: 10px;
-        color: #442525;
+        color: #344a50;
         line-height: 1.6;
       }
-
       .buttons {
         display: flex;
         justify-content: center;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
         margin: 20px 0;
       }
-
       .btn {
         display: inline-block;
         padding: 10px 16px;
-        color: rgb(235, 236, 154);
-        background-color: #1a1a1a;
+        color: #fff;
+        background: #6b4b3a;
         text-decoration: none;
-        border-radius: 4px;
-        transition: background-color 0.3s;
+        border-radius: 6px;
+        transition: background 0.2s;
       }
-
       .btn:hover {
-        background-color: #444;
+        background: #553826;
       }
-
       #informacoes,
       .info {
         margin: 10px auto;
-        padding: 15px;
-        background-color: rgb(235, 236, 154);
-        color: #111;
+        padding: 16px;
+        background: #f1fbff;
+        border: 1px solid #d7eef6;
+        color: #223238;
         max-width: 700px;
         text-align: left;
-        border: 1px solid #ccc;
         border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
       }
-
       .info h2 {
         margin-bottom: 10px;
-        color: #1a1a1a;
+        color: #3a2f2a;
       }
     </style>
   </head>
