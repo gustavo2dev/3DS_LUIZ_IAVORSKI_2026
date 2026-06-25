@@ -4,7 +4,7 @@ class Produto {
 
   constructor(nome, preco, quantidade) {
     if (!nome || preco <= 0 || quantidade <= 0) {
-      throw new Error("Dados invalidos para o produto!!!");
+      throw new Error("Dados inválidos para o produto");
     }
     this.nome = nome;
 
@@ -40,8 +40,11 @@ document
       const novoProduto = new Produto(nome, preco, quantidade);
 
       produtos.push(novoProduto);
+
+      renderizarTabela();
+      e.target.reset();
     } catch (erro) {
-      alert(erro.menssage);
+      alert(erro.message);
     }
   });
 
@@ -53,30 +56,31 @@ function renderizarTabela() {
     const row = document.createElement("tr");
 
     row.innerHTML = `
-            <td>${produto.nome}</td>
-            <td>R$ ${produto.preco.toFixed(2)}</td>
-            <td>${produto.quantidade}</td>
-            <td></td>
-        `;
+                <td>${produto.nome}</td>
+                <td>R$ ${produto.preco.toFixed(2)}</td>
+                <td>${produto.quantidade}</td>
+                <td></td>
+            `;
 
     const botaoRemover = document.createElement("button");
     botaoRemover.textContent = "Remover";
     botaoRemover.addEventListener("click", () => removerProduto(index));
 
     row.querySelector("td:last-child").appendChild(botaoRemover);
+    tabela.appendChild(row);
   });
 
   atualizarTotal();
 }
 
 function atualizarTotal() {
-  const tatal = produtos.reduce((acc, p) => acc + p.valorTotal(), 0);
+  const total = produtos.reduce((acc, p) => acc + p.valorTotal(), 0);
   document.getElementById("total-estoque").textContent =
-    `Total em estoque: R$: ${total.toFixed(2)}`;
+    `Total em estoque: R$ ${total.toFixed(2)}`;
 }
 
 function removerProduto(index) {
-  produtos.slice(index, 1);
+  produtos.splice(index, 1);
   renderizarTabela();
 }
 
