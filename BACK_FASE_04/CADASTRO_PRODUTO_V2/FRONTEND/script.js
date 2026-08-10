@@ -11,11 +11,9 @@ class Produto {
     this.#preco = parseFloat(preco);
     this.#quantidade = parseInt(quantidade);
   }
-
   get preco() {
     return this.#preco;
   }
-
   get quantidade() {
     return this.#quantidade;
   }
@@ -24,8 +22,7 @@ class Produto {
     return this.#preco * this.#quantidade;
   }
 
-  //Método toJSON();
-
+  //Método toJSON
   toJSON() {
     return {
       nome: this.nome,
@@ -35,15 +32,15 @@ class Produto {
   }
 }
 
-//const produtos = [];
-//Mudançã de arquitetura : cliente->servidor
+// const produtos = [];
+// MUDANÇA DE ARQUITETURA - CLIENTE-SERVIDOR
 
-//criar uma constante com endereço de API (rodadndo no nosso servidor)
+// CRIAR UMA CONSTANTE COM ENDEREÇO DE API (RODANDO NO SERVIDOR)
 const API_URL = "http://localhost:3000/produtos";
 
-// requisição post : enviar inform dados para servidor
-//função deve ser async pois o envio - resposta trafegam pela mesma rede
-// usar await até q o servidor responda
+// REQUISIÇÃO POST - enviar dados para o servidor
+// funcão deve serasync pois o envio, resposta trafegame pela mesma rede
+// usar await até que o servidor responda
 
 document
   .getElementById("produto-form")
@@ -57,17 +54,22 @@ document
     try {
       const novoProduto = new Produto(nome, preco, quantidade);
 
-      //produtos.push(novoProduto);
+      // produtos.push(novoProduto);
 
-      //disparo de rede : envia o produto(objeto) convertido em texto JSON para o express
+      // DISPARO NA REDE: envia o produto convertido em texto JSON para o Express
+
       const resposta = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(novoProduto.toJSON()),
       });
 
       if (!resposta.ok) {
-        throw new Error("Erro ao salvar o produto no servidor backend!!");
+        const erroDoServidor = await resposta.json().catch(() => null);
+        throw new Error(
+          erroDoServidor?.erro ||
+            "Erro ao salvar o produto no servidor backend",
+        );
       }
 
       renderizarTabela();
@@ -75,45 +77,97 @@ document
     } catch (erro) {
       alert(erro.message);
     }
-  }); //Parei aqui!!!!!!!!!!!!!!!
+  }); //PAREI AQUI
 
-function renderizarTabela() {
-  const tabela = document.querySelector("#tabela-produtos tbody");
-  tabela.innerHTML = "";
+// REQUISAÇÃO GET (buscar um servidor e desenhar tela)
+// O coração da proposta ocorre aqui
 
-  produtos.forEach((produto, index) => {
-    const row = document.createElement("tr");
+async function renderizarTabela() {
+  try {
+    // buscar dados
+    const resposta = await fetch(API_URL);
 
-    row.innerHTML = `
+    if (!resposta.ok) {
+      throw new Error("Não foi possível buscar os produtos no servidor");
+    }
+
+    const dadosBrutosDoServidor = await resposta.json();
+
+    if (!Array.isArray(dadosBrutosDoServidor)) {
+      throw new Error("Resposta inválida recebida do servidor");
+    }
+
+    const tabela = document.querySelector("#tabela-produtos tbody");
+    tabela.innerHTML = "";
+    let totalAcumulado = 0;
+
+    // 2 passado por cada item retornando pelo BACKEND
+    dadosBrutosDoServidor.forEach((dados, index) => {
+      const produto = new Produto(dados.nome, dados.preco, dados.quantidade);
+      totalAcumulado += produto.valorTotal();
+      // desenha a linha na tabela utilizando os dados do objeto reconstruindo
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
                 <td>${produto.nome}</td>
                 <td>R$ ${produto.preco.toFixed(2)}</td>
                 <td>${produto.quantidade}</td>
-                <td></td>
+                <td>R$ ${produto.valorTotal().toFixed(2)}</td>
+                <td><button type="button" class="excluir-produto">Excluir</button></td>
             `;
 
-    const botaoRemover = document.createElement("button");
-    botaoRemover.textContent = "Remover";
-    botaoRemover.addEventListener("click", () => removerProduto(index));
+      row.querySelector(".excluir-produto").addEventListener("click", async () => {
+        if (confirm(`Excluir o produto ${produto.nome}?`)) {
+          await excluirProduto(index);
+        }
+      });
 
-    row.querySelector("td:last-child").appendChild(botaoRemover);
-    tabela.appendChild(row);
+      tabela.appendChild(row);
+    });
+
+    // 3 atualiza o elemento de texto com o acumulado total
+    document.getElementById("total-estoque").textContent =
+      `Total em estoque: R$ ${totalAcumulado.toFixed(2)}`;
+  } catch (erro) {
+    console.error("Erro ao buscar dados no servidor:", erro);
+  }
+}
+
+async function excluirProduto(index) {
+  try {
+    const resposta = await fetch(`${API_URL}/${index}`, { method: "DELETE" });
+
+    if (!resposta.ok) {
+      const erroDoServidor = await resposta.json().catch(() => null);
+      throw new Error(
+        erroDoServidor?.erro || "Erro ao excluir o produto no servidor",
+      );
+    }
+
+    renderizarTabela();
+  } catch (erro) {
+    console.error("Erro ao excluir produto no servidor:", erro);
+  }
+}
+
+// REQUISIÇÃO PARA DELETE (apagar os dados em lote)
+document
+  .getElementById("limpar-tabela")
+  .addEventListener("click", async function () {
+    if (confirm("Deseja mesmo limpar mesmo toda a tabela no servidor?")) {
+      try {
+        // envia uma ordem de remoção para a API
+        await fetch(API_URL, { method: "DELETE" });
+
+        // atualiza a tabela
+        renderizarTabela();
+      } catch (erro) {
+        console.error("Erro ao limpar dados no servidor:", erro);
+      }
+    }
   });
 
-  atualizarTotal();
-}
-
-function atualizarTotal() {
-  const total = produtos.reduce((acc, p) => acc + p.valorTotal(), 0);
-  document.getElementById("total-estoque").textContent =
-    `Total em estoque: R$ ${total.toFixed(2)}`;
-}
-
-function removerProduto(index) {
-  produtos.splice(index, 1);
-  renderizarTabela();
-}
-
-document.getElementById("limpar-tabela").addEventListener("click", function () {
-  produtos.length = 0;
-  renderizarTabela();
-});
+// INICIALIAZAÇÃO AUTOMÁTICA
+// assim que o usuário abre o navegador, o app busca
+// se ja há dados salvods de sessões anteriores lá no BACKEND
+renderizarTabela();
