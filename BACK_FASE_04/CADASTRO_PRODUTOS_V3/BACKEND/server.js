@@ -54,8 +54,6 @@ app.get("/produtos", (req, res) => {
   });
 });
 
-// CADASTRAR PRODUTO
-
 app.post("/produtos", (req, res) => {
   const { nome, preco, quantidade } = req.body;
 
@@ -95,8 +93,6 @@ app.post("/produtos", (req, res) => {
   );
 });
 
-// APAGAR TODOS OS PRODUTOS
-
 app.delete("/produtos", (req, res) => {
   db.run(
     "DELETE FROM produtos",
@@ -112,8 +108,6 @@ app.delete("/produtos", (req, res) => {
     },
   );
 });
-
-// APAGAR UM PRODUTO PELO ID
 
 app.delete("/produtos/:id", (req, res) => {
   const id = Number(req.params.id);
@@ -145,8 +139,6 @@ app.delete("/produtos/:id", (req, res) => {
     },
   );
 });
-
-// INICIALIZAÇÃO
 
 app.listen(PORT, () => {
   console.log(`Servidor backend rodando em http://localhost:${PORT}`);
